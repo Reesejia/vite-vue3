@@ -11,7 +11,15 @@
   </div>
 </template>
 <script>
-import { watchEffect, ref, toRef, reactive, toRefs, computed } from "vue";
+import {
+  watchEffect,
+  ref,
+  toRef,
+  reactive,
+  toRefs,
+  computed,
+  watch
+} from "vue";
 export default {
   props: {
     title: String
@@ -23,7 +31,7 @@ export default {
 
     // props: 基于Proxy代理的响应式数据，不能是props；得是props.title
     // watchEffect(() => {
-    //   console.log("props11", props.title);
+    //   console.log("state.supNum", state.supNum);
     // });
 
     // ref 构建响应式数据（一般处理简单值的响应式）
@@ -73,18 +81,44 @@ export default {
     //   let total = state.supNum+ state.oppNum
     //   return  total === 0 ? '--' : (state.supNum/total*100).toFixed(2) + '%'
     // })
-    let ratio = computed({
-      get: () => {
-        let total = state.supNum + state.oppNum;
-        return total === 0
-          ? "--"
-          : ((state.supNum / total) * 100).toFixed(2) + "%";
-      },
-      set: val => {
-        console.log("set val", val);
+    // let ratio = computed({
+    //   get: () => {
+    //     let total = state.supNum + state.oppNum;
+    //     return total === 0
+    //       ? "--"
+    //       : ((state.supNum / total) * 100).toFixed(2) + "%";
+    //   },
+    //   set: val => {
+    //     console.log("set val", val);
+    //   }
+    // });
+    // ratio.value = 100
+
+    // watchEffect
+    // watchEffect(() => {
+    //   console.log("state.supNum", state.supNum);
+    // });
+
+    // 监听state，不是监听state.supNum
+    // watch(state, () =>{
+    //   console.log('watch state.supNum', state.supNum)
+    // })
+
+    // watch 只监听state.supNum
+    // watch(() => state.supNum, () =>{
+    //   console.log('watch state.supNum', state.supNum)
+    // })
+
+    let ratio = ref("--");
+    watch(
+      () => [state.supNum, state.oppNum],
+      ([supNum, oppNum], [prevSupNum, prevOppNum]) => {
+        console.log("watch 实现ratio");
+        let total = supNum + oppNum;
+        ratio.value =
+          total === 0 ? "--" : ((supNum / total) * 100).toFixed(2) + "%";
       }
-    });
-    ratio.value = 100
+    );
 
     return { ...toRefs(state), change, ratio };
   }
